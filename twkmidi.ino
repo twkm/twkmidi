@@ -74,20 +74,20 @@ int input_shift_2_output[8][3] = {
   {1, 15, key_channel} // Not used
 }; 
 int input_shift_3_output[8][3] = {
-  {0, 35, drum_channel},
-  {0, 38, drum_channel},
+  {0, 36, drum_channel},
   {0, 37, drum_channel},
-  {0, 39, key_channel},
-  {0, 42, key_channel},
-  {0, 46, drum_channel},
-  {0, 49, drum_channel},
-  {0, 56, drum_channel}
+  {0, 38, drum_channel},
+  {0, 39, drum_channel},
+  {0, 40, drum_channel},
+  {0, 41, drum_channel},
+  {0, 42, drum_channel},
+  {0, 43, drum_channel}
 };  
 int input_shift_4_output[8][3] = {
-  {0, 41, drum_channel},
-  {0, 43, drum_channel},
+  {0, 44, drum_channel},
   {0, 45, drum_channel},
-  {0, 60, drum_channel},
+  {0, 46, drum_channel},
+  {0, 47, drum_channel},
   {3, 15, false},
   {3, 20, false},
   {3, 21, false},
