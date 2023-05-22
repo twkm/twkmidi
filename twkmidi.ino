@@ -20,8 +20,10 @@ const int default_velocity = 99;
 const int key_channel = 1;
 const int drum_channel = 10;
 
-int octave = 5;
-int octave_adjustment = 0;
+// Defaults to start at octave 2 (C2)
+int octave = 2;
+int octave_adjustment = 48;
+int current_note_code = 48;
 
 int board_led = LED_BUILTIN;
 int board_led_state = false;
@@ -54,21 +56,21 @@ byte input_shift_4_byte = 72;  //01001000
 //     The third element holds the toggle's state
 //     {3, 15, false}
 int input_shift_1_output[8][3] = {
-  {0, 72, key_channel}, 
-  {0, 73, key_channel}, 
-  {0, 74, key_channel}, 
-  {0, 75, key_channel},
-  {0, 76, key_channel},
-  {0, 77, key_channel},
-  {0, 78, key_channel},
-  {0, 79, key_channel}
+  {0, 0, key_channel}, 
+  {0, 1, key_channel}, 
+  {0, 2, key_channel}, 
+  {0, 3, key_channel},
+  {0, 4, key_channel},
+  {0, 5, key_channel},
+  {0, 6, key_channel},
+  {0, 7, key_channel}
 };
 int input_shift_2_output[8][3] = { 
-  {0, 80, key_channel},
-  {0, 81, key_channel},
-  {0, 82, key_channel},
-  {0, 83, key_channel},
-  {0, 84, key_channel},
+  {0, 8, key_channel},
+  {0, 9, key_channel},
+  {0, 10, key_channel},
+  {0, 11, key_channel},
+  {0, 12, key_channel},
   {2, 0, 0}, // Octave up
   {2, 1, 0}, // Octave down
   {1, 15, key_channel} // Not used
@@ -207,7 +209,10 @@ void handleOutput(int triggered, int *output_array, int *state, int thisBit) {
         switch(output_array[0]) {
           case 0:
             // Note
-            usbMIDI.sendNoteOn(output_array[1] + adjust_by, default_velocity, output_array[2]);
+            current_note_code = output_array[1] + adjust_by;
+            if  (current_note_code < 128) {
+              usbMIDI.sendNoteOn(current_note_code, default_velocity, output_array[2]);
+            }
             break;
           case 1:
             // Control Change momentary
@@ -228,22 +233,26 @@ void handleOutput(int triggered, int *output_array, int *state, int thisBit) {
       if (state[thisBit] == true) { // Button was just released
         switch(output_array[0]) {
           case 0:
-            usbMIDI.sendNoteOff(output_array[1] + adjust_by, default_velocity, output_array[2]);
+            current_note_code = output_array[1] + adjust_by;
+            if  (current_note_code < 128) {
+              usbMIDI.sendNoteOff(current_note_code, default_velocity, output_array[2]);
+            }
             break;
           case 1:
             usbMIDI.sendControlChange(output_array[1], 0, output_array[2]);
             break;           
           case 2:
             usbMIDI.sendControlChange(123, 0, key_channel);
+            // Octave -2 (C-2) sends the MIDI code 0, so these calculations allow converting octave and adjustments to MIDI codes 
             if (output_array[1] == 0) {
-              if (octave != 9) {
+              if (octave != 8) {
                 ++octave;
-                octave_adjustment = (octave - 5) * 12;
+                octave_adjustment = (octave + 2) * 12;
               }
             } else {
-              if (octave != 1) {
+              if (octave != -2) {
                 --octave;
-                octave_adjustment = (octave - 5) * 12;
+                octave_adjustment = (octave + 2) * 12;
               }
             }
             break;
